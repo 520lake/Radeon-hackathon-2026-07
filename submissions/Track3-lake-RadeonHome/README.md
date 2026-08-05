@@ -185,6 +185,15 @@ The BC policy was trained on the same AMD Radeon GPU as the simulator,
 using data collected from the deterministic expert controller.
 Training took 14.6 seconds on gfx1100 (ROCm/HIP 7.2).
 
+### ACT / Closed-loop Policy
+
+**Status: optional future extension.** The BC offline baseline above proves the
+data pipeline and training are functional. Full ACT training with camera
+observations and Genesis closed-loop rollout (same-seed evaluation against
+heuristic controller) is the natural next step, but has not been completed
+for this submission. The BC results (MAE=0.0025, grip=99.9%) are offline
+state→action prediction metrics — they are not Genesis E2E task success rates.
+
 ### Off-Distribution Robustness
 
 | Condition | Transport | Steps | Note |
@@ -450,8 +459,8 @@ output/video/      Final 4:17 demonstration video
   remains experimental.
 - Two-seed and three-seed groups are engineering repeatability evidence, not
   proof of universal success.
-- A portable Docker image is preferable under the official rules but is not
-  claimed because it has not been verified on Radeon Cloud.
+- A portable Docker image is preferable under the official rules and has been
+  provided (see `Dockerfile`) but has not been end-to-end verified on Radeon Cloud.
 
 ## Team contribution
 
@@ -461,15 +470,30 @@ implementation was reviewed through committed tests and recorded experiments.
 
 ## Submission links
 
+### Documents
 - [Technical report PDF](output/pdf/RadeonHome_Technical_Report_20260802.pdf)
 - [Technical report source](docs/TECHNICAL_REPORT.md)
 - [Final demonstration video](output/video/RadeonHome_Track3_Demo_20260802.mp4)
 - [Video provenance and storyboard](docs/DEMO_VIDEO.md)
+
+### Evidence
 - [ROCm benchmark](docs/final_rocm_benchmark_20260802.md)
 - [Multi-object physical evaluation](docs/final_multiobject_stability_20260731.md)
 - [Matched ablation](docs/ablation_20260802.md)
 - [Safe fixed-to-mobile Franka migration](docs/mobile_asset_migration_20260802.md)
+- [Off-distribution robustness (6/6)](docs/ROBUSTNESS_FINAL.md)
 - [Submission completion status](docs/SUBMISSION_STATUS.md)
+
+### Upstream contributions
+- [Genesis PR #3186](https://github.com/Genesis-Embodied-AI/genesis-world/pull/3186) — fix URDF EPS mass bug
+- [LeRobot PR #4336](https://github.com/huggingface/lerobot/pull/4336) — ROCm import guard fix
+- [Genesis Issue #3182](https://github.com/Genesis-Embodied-AI/genesis-world/issues/3182) — scikit-image/ROCm
+- [Genesis Issue #3185](https://github.com/Genesis-Embodied-AI/genesis-world/issues/3185) — URDF inertial EPS
+- [franka demo PR #2](https://github.com/wangxunx/franka_fruit_pick_demo/pull/2) — Wilson CI batch runner
+
+### Models (HuggingFace)
+- Learned Grasp Policy: `520lake/radeonhome-grasp-policy`
+- BC State Policy: `520lake/radeonhome-bc-policy`
 
 The official pull-request title is:
 
