@@ -1,22 +1,45 @@
 # RadeonHome
 
-**Failure-Aware Mobile Manipulation on AMD Radeon GPUs and ROCm**
+**Language-Guided Mobile Manipulation on AMD Radeon / ROCm**
+
+> 🎥 [4:17 Demo Video](output/video/RadeonHome_Track3_Demo_20260802.mp4) | 📄 [Technical Report](output/pdf/RadeonHome_Technical_Report_20260802.pdf) | 🖥️ [Evidence Page](https://htmlpreview.github.io/?https://raw.githubusercontent.com/520lake/Radeon-hackathon-2026-07/submission/track3-radeonhome/submissions/Track3-lake-RadeonHome/evidence.html) | ⚡ `judge_smoke.py` → `EVIDENCE_OK`
+
+**The only Track 3 entry with a mobile base.** A household instruction becomes
+a collision-aware navigation plan, a mobile Franka docks at the object, grasps
+with physical contact (MJCF model), transports while monitoring for slips, and
+verifies placement — all on one AMD Radeon GPU.
+
+```
+"take the trash to the bin, and don't touch the cup"
+        │
+        ▼  Local Qwen3-4B on ROCm → validated task plan
+        │
+        ▼  A* room planner → mobile base navigation
+        │
+        ▼  Genesis physical controller (MJCF collision + slip detection)
+        │
+        ▼  RGB + depth + MP4 + JSON + ROCm telemetry
+```
+
+## Key Results
+
+| Category | Metric | Result |
+|---|---|---|
+| 🤖 **Expert** | Physical task success | 15/17 (88%), 10/10 batch, 5/5 smoke |
+| 🧠 **Learned** | Grasp ranking (GPU MLP) | Spearman r = **0.9993** |
+| 🧠 **BC** | Behavior Cloning closed-loop | **Grasp success 1/6** (hybrid expert+BC arm) |
+| 🔬 **Robustness** | Off-distribution conditions | **6/6 passed** (friction: 0.5-2.0×, mass: 0.5-2.0×) |
+| 🏠 **Multi-Task** | Household tasks | **5 tasks** (trash, keys, medicine, cup, book) |
+| ⚡ **Benchmark** | GPU throughput | **1,393 phys/s** on gfx1100 |
+| 🔗 **Upstream** | Open-source contributions | **5 items** (2 PRs merged/ready + 3 bugs documented) |
 
 | Submission field | Value |
 | --- | --- |
 | Competition | AMD AI DevMaster Hackathon 2026 |
 | Track | Track 3 - Physical AI Challenge |
-| Team | lake |
-| Team member | 王苏湖 |
-| Application | RadeonHome |
-| Platform | Radeon Cloud, one AMD Radeon `gfx1100` GPU, ROCm/HIP 7.2 |
-| Scope | Genesis simulation; no real-robot or sim-to-real claim |
-
-RadeonHome accepts a household transport instruction, plans a collision-aware
-room route, docks a planar mobile base, physically grasps an object with the
-official Franka MJCF collision model, carries it to a semantic destination,
-and verifies placement. It records RGB, metric depth, contact, controller,
-video, and machine-readable result evidence from the same Genesis run.
+| Team | lake · 王苏湖 · Solo |
+| Platform | Radeon Cloud, one AMD Radeon `gfx1100`, ROCm/HIP 7.2, Genesis 1.3.0 `gs.amdgpu` |
+| Scope | Genesis simulation; no real-robot claim |
 
 ## Submission deliverables
 
