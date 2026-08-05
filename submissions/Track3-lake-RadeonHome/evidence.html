@@ -140,15 +140,47 @@
 </div>
 </div>
 
-<h2>Upstream Open-Source Contribution</h2>
+<h2>Upstream Open-Source Contributions</h2>
 <div class="card">
 <table>
-  <tr><th>Contribution</th><th>Status</th></tr>
+  <tr><th>Contribution</th><th>Type</th><th>Status</th></tr>
   <tr>
-    <td><a href="https://github.com/wangxunx/franka_fruit_pick_demo/pull/2">franka_fruit_pick_demo PR #2</a> — Add evaluation metrics (Wilson CI) and multi-seed batch runner to official Track 3 starter demo</td>
+    <td><a href="https://github.com/huggingface/lerobot/pull/4336">LeRobot PR #4336</a> — <strong>Fix optional-dependency import guard for ROCm cloud images</strong>. On ROCm cloud images, an installed-but-broken <code>transformers</code> (version conflict with <code>huggingface-hub</code>) passed <code>find_spec()</code> and crashed <code>lerobot.processor</code> / <code>lerobot.datasets</code> at import. Fix: verify real importability beyond <code>find_spec</code>.</td>
+    <td>PR (+13 lines)</td>
+    <td><span class="badge badge-pass">OPEN</span></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Genesis-Embodied-AI/genesis-world/issues/3182">Genesis Issue #3182</a> — <strong>scikit-image 0.22 + NumPy 2.x binary incompatibility on ROCm cloud images</strong>. Documented the ABI mismatch with full reproduction steps and verified fix (<code>pip install --upgrade scikit-image>=0.25</code>).</td>
+    <td>Bug Report</td>
+    <td><span class="badge badge-pass">OPEN</span></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/wangxunx/franka_fruit_pick_demo/pull/2">franka_fruit_pick_demo PR #2</a> — Add evaluation metrics (Wilson CI) and multi-seed batch runner to official Track 3 starter demo.</td>
+    <td>PR</td>
     <td><span class="badge badge-pass">OPEN</span></td>
   </tr>
 </table>
+</div>
+
+<h2>Reproducibility</h2>
+<div class="card">
+<h3>Docker (recommended)</h3>
+<div class="pipeline">docker build -t radeonhome .
+docker run --device=/dev/kfd --device=/dev/dri --group-add video \
+  -e GENESIS_BACKEND=gs.amdgpu \
+  radeonhome --task trash_to_trash_bin --seed 42</div>
+<p style="font-size:12px;color:var(--muted);margin-top:8px">
+  Based on <code>rocm/pytorch:rocm7.2_ubuntu22.04_py3.10_pytorch_2.9.1</code>. Includes scikit-image compatibility fix and EGL offscreen rendering support.
+</p>
+
+<h3>Quick Verification</h3>
+<div class="pipeline"># One-command evidence validation (no GPU needed)
+cd submissions/Track3-lake-RadeonHome
+python3 judge_smoke.py
+# Expected: EVIDENCE_OK</div>
+
+<h3>Cloud Bootstrap</h3>
+<p>See <a href="source/bootstrap_cloud.sh">bootstrap_cloud.sh</a> for Radeon Cloud setup instructions.</p>
 </div>
 
 <h2>Limitations (Explicitly Disclosed)</h2>

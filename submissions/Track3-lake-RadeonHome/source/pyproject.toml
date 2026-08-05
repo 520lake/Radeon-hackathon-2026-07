@@ -8,7 +8,17 @@ version = "0.1.0"
 description = "Language-guided, failure-aware household manipulation on AMD Radeon GPUs"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "genesis-world>=1.3.0",
+    "numpy>=1.26",
+    "scikit-image>=0.25",
+    "imageio[ffmpeg]>=2.37",
+    "torch>=2.9",
+    "transformers>=4.57",
+    "fastapi>=0.135",
+    "uvicorn[standard]>=0.42",
+    "pydantic>=2",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
