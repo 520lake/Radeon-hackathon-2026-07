@@ -2,7 +2,17 @@
 
 **Language-Guided Mobile Manipulation on AMD Radeon / ROCm**
 
-> 🎥 [4:17 Demo Video](output/video/RadeonHome_Track3_Demo_20260802.mp4) | 📄 [Technical Report](output/pdf/RadeonHome_Technical_Report_20260802.pdf) | 🖥️ [Evidence Page](https://htmlpreview.github.io/?https://raw.githubusercontent.com/520lake/Radeon-hackathon-2026-07/submission/track3-radeonhome/submissions/Track3-lake-RadeonHome/evidence.html) | ⚡ `judge_smoke.py` → `EVIDENCE_OK`
+<p align="center">
+  <img src="docs/assets/radeonhome_hero.gif" width="640" alt="RadeonHome — mobile Franka navigates room, docks at desk, physically grasps object, transports to destination">
+</p>
+
+<p align="center">
+  <b>🖥️ <a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/520lake/RadeonHome/main/docs/showcase.html">Interactive Showcase — Video + Pipeline + Results</a></b>
+  &nbsp;|&nbsp;
+  📄 <a href="output/pdf/RadeonHome_Technical_Report_20260802.pdf">Technical Report</a>
+  &nbsp;|&nbsp;
+  ⚡ <code>judge_smoke.py</code> → <code>EVIDENCE_OK</code>
+</p>
 
 **The only Track 3 entry with a mobile base.** A household instruction becomes
 a collision-aware navigation plan, a mobile Franka docks at the object, grasps
