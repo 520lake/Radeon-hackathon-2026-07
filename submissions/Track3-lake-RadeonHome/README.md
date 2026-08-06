@@ -130,42 +130,60 @@ Raw telemetry and physical results are committed under
 
 ## System architecture
 
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  💬  "take the trash to the bin, and don't touch the cup"                    │
-│      Natural language input — Chinese or English                             │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  🧠  Local Qwen3-4B on AMD Radeon / ROCm                                     │
-│      Converts free-form instruction → validated semantic task plan            │
-│      Explicit allow-list: never emits joint commands or coordinates          │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  🗺️  A* Room Planner  →  Semantic Docking Transform                          │
-│      6×6m room grid · obstacle dilation · collision-aware route              │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  🤖  Genesis Mobile Franka Physical Controller on AMD Radeon GPU             │
-│                                                                              │
-│   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────────┐      │
-│   │ Physical │───▶│   Slip   │───▶│Autonomous│───▶│    Verified      │      │
-│   │  Grasp   │    │Detection │    │  Retry   │    │   Placement      │      │
-│   │(MJCF col)│    │(contact) │    │(recover) │    │  (settled check) │      │
-│   └──────────┘    └──────────┘    └──────────┘    └──────────────────┘      │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  📊  Evidence Output (one continuous Genesis run)                            │
-│      RGB frames · Metric depth · MP4 video · Contact/slip JSON · ROCm stats │
-└──────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Input[ ]
+        A["🗣️ Natural Language Input<br/>Chinese / English"]
+    end
+
+    subgraph Planning[ ]
+        B["🧠 Semantic Planning<br/>Qwen3-4B · AMD ROCm"]
+        C["🗺️ Mobile Navigation<br/>A* · Semantic Docking · Collision Avoidance"]
+    end
+
+    subgraph Core[ ]
+        D["🤖 Mobile Manipulation Controller<br/>Grasp · Slip Detection · Recovery · Verified Placement"]
+        E["⚙️ Genesis Physics Simulation<br/>AMD Radeon · ROCm<br/>Mobile Base + Franka Arm"]
+    end
+
+    subgraph Output[ ]
+        F["📊 Evaluation & Evidence<br/>Success · Error · Time · RGB · Depth · Video · ROCm Metrics"]
+    end
+
+    subgraph Policy[ ]
+        direction LR
+        H["🎯 Heuristic Policy"]
+        I["📈 Learned Ranking<br/>Spearman ρ = 0.9993"]
+        J["🧪 Behavior Cloning<br/>28,581 state-action pairs"]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    H -.-> D
+    I -.-> D
+    J -.-> D
 ```
 
-**Safety boundary**: The language model produces only a semantic task schema.
-A deterministic planner and physical controller remain the execution boundary.
-Qwen3-4B never emits joint angles, coordinates, or motor commands.
+**Main flow**: Natural language → semantic planning → A* navigation → manipulation
+controller → Genesis physics on AMD Radeon → evaluation evidence. For example:
+*"Take the trash to the bin, don't touch the cup"* is parsed by Qwen3-4B into
+a validated task plan, then executed as a collision-aware mobile manipulation
+task — all on one AMD Radeon GPU.
+
+**Policy branch**: Three strategies feed into the manipulation controller. The
+heuristic policy provides the production-quality baseline. The learned ranking
+policy (Spearman ρ = 0.9993, trained 18.1s on gfx1100) replaces grasp candidate
+scoring. Behavior Cloning (28,581 state-action pairs from 5 expert demonstrations,
+trained 14.6s on gfx1100) controls the arm during manipulation phases.
+
+**Safety boundary**: The language model never emits joint angles, coordinates,
+or motor commands. A deterministic task schema, planner, and physical controller
+remain the execution boundary. In BC mode, expert navigation and finger sequencing
+are preserved; only arm positioning is learned.
 
 ## Technical contributions
 
