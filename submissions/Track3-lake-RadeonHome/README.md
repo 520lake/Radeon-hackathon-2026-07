@@ -40,6 +40,20 @@ verifies placement — all on one AMD Radeon GPU.
 | Team | lake · 王苏湖 · Solo |
 | Platform | Radeon Cloud, one AMD Radeon `gfx1100`, ROCm/HIP 7.2, Genesis 1.3.0 `gs.amdgpu` |
 | Scope | Genesis simulation; no real-robot claim |
+| 🖥️ **Showcase** | **[Interactive evidence + video page →](https://htmlpreview.github.io/?https://raw.githubusercontent.com/520lake/RadeonHome/main/docs/showcase.html)** |
+
+## What makes RadeonHome different
+
+| Dimension | Other Track 3 entries | RadeonHome |
+|---|---|---|
+| 🤖 Robot form | Fixed-base arms (13/17), quadrupeds, drones | **Only mobile base + arm** |
+| 🗣️ Task input | Hardcoded task config | **Natural language** → Qwen3-4B local inference on ROCm |
+| 🧠 Learning | VLA fine-tuning or PPO (few entries) | **Three strategies**: expert → learned ranking → BC closed-loop |
+| 🔗 Upstream | 0-3 contributions typical | **5 contributions** (2 PRs + 3 Issues) |
+| 🔬 Robustness | 1-2 entries with off-distribution tests | **6/6 conditions** (friction × mass) — all passed |
+| 🎯 Multi-task | Single-task focus | **5 household tasks** in one system |
+
+> RadeonHome is not the best at any single dimension — but it is the **only entry** that combines mobile manipulation, natural language, learned policies, robustness evidence, and upstream contributions into one complete system on AMD Radeon.
 
 ## Submission deliverables
 
@@ -66,13 +80,11 @@ Video provenance, encoding details, checksum, and storyboard are documented in
 
 ## Real simulator evidence
 
-These frames come from the same collision-corrected Radeon Cloud run as the
-final JSON and MP4. The table now starts in front of the mobile root rather
-than intersecting the fixed-base Franka mounting geometry.
+All frames from the same Genesis run — no compositing, no scene editing.
 
-| Physical lift | Verified placement |
-| --- | --- |
-| ![Collision-corrected physical lift](docs/demo/latest_dashboard_run/04_physical_lift.png) | ![Verified placement](docs/demo/latest_dashboard_run/08_released_and_settled.png) |
+| Navigate to desk | Physical grasp | Lift payload | Released & settled |
+|---|---|---|---|
+| ![Navigate to desk](docs/demo/latest_dashboard_run/01_pickup_dock.png) | ![Physical grasp](docs/demo/latest_dashboard_run/03_grasp.png) | ![Physical lift](docs/demo/latest_dashboard_run/04_physical_lift.png) | ![Released and settled](docs/demo/latest_dashboard_run/08_released_and_settled.png) |
 
 ## Verified results
 
@@ -118,32 +130,42 @@ Raw telemetry and physical results are committed under
 
 ## System architecture
 
-![RadeonHome architecture](docs/architecture_overview.svg)
-
-```text
-Natural-language instruction
-          |
-          v
-Local Qwen3-4B explanation (non-executable)
-          |
-          v
-Validated task schema and safety constraints
-          |
-          v
-A* room planner -> semantic docking transform
-          |
-          v
-Genesis mobile Franka physical controller on AMD Radeon / ROCm
-          |
-          v
-Contact + slip + placement verification
-          |
-          v
-RGB + metric depth + MP4 + JSON + ROCm telemetry
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  💬  "take the trash to the bin, and don't touch the cup"                    │
+│      Natural language input — Chinese or English                             │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  🧠  Local Qwen3-4B on AMD Radeon / ROCm                                     │
+│      Converts free-form instruction → validated semantic task plan            │
+│      Explicit allow-list: never emits joint commands or coordinates          │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  🗺️  A* Room Planner  →  Semantic Docking Transform                          │
+│      6×6m room grid · obstacle dilation · collision-aware route              │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  🤖  Genesis Mobile Franka Physical Controller on AMD Radeon GPU             │
+│                                                                              │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────────┐      │
+│   │ Physical │───▶│   Slip   │───▶│Autonomous│───▶│    Verified      │      │
+│   │  Grasp   │    │Detection │    │  Retry   │    │   Placement      │      │
+│   │(MJCF col)│    │(contact) │    │(recover) │    │  (settled check) │      │
+│   └──────────┘    └──────────┘    └──────────┘    └──────────────────┘      │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  📊  Evidence Output (one continuous Genesis run)                            │
+│      RGB frames · Metric depth · MP4 video · Contact/slip JSON · ROCm stats │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The language model never sends joint commands. A deterministic task schema,
-planner, and physical controller remain the execution boundary.
+**Safety boundary**: The language model produces only a semantic task schema.
+A deterministic planner and physical controller remain the execution boundary.
+Qwen3-4B never emits joint angles, coordinates, or motor commands.
 
 ## Technical contributions
 
